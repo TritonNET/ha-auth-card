@@ -73,38 +73,48 @@ class AuthWebpageCard extends LitElement {
         }
     }
 
-    getAllProperties(obj) {
+    getAllDataProperties(obj) {
         const seen = new WeakSet();
-        const properties = {};
+        const dataProperties = {};
     
         function collectProps(o) {
             if (o && typeof o === "object" && !seen.has(o)) {
                 seen.add(o);
+    
                 Object.getOwnPropertyNames(o).forEach((key) => {
-                    if (!properties.hasOwnProperty(key)) {
-                        try {
-                            properties[key] = o[key];
-                        } catch {
-                            properties[key] = "[Error accessing]";
+                    if (dataProperties.hasOwnProperty(key)) return;
+    
+                    try {
+                        const descriptor = Object.getOwnPropertyDescriptor(o, key);
+                        if (descriptor && typeof descriptor.value !== "function") {
+                            dataProperties[key] = descriptor.value;
                         }
+                    } catch {
+                        dataProperties[key] = "[Error accessing]";
                     }
                 });
+    
                 collectProps(Object.getPrototypeOf(o)); // Traverse the prototype chain
             }
         }
     
         collectProps(obj);
-
-        return properties;
+    
+        // Merge properties from the `window` object
+        collectProps(window);
+    
+        return dataProperties;
     }
 
-    render() {
-        const allProperties = this.getAllProperties(this);
-        const formattedProps = Object.entries(allProperties)
-            .map(([key, value]) => `${key}: ${typeof value === "object" ? "[Object]" : value}`)
-            .join("\n");
 
-        return html`<pre>${formattedProps}</pre>`;
+    render() {
+        try {
+            const allDataProperties = this.getAllDataProperties(this);
+            return html`<p>${JSON.stringify(allDataProperties, null, 2)}</p>`;
+        } catch (error) {
+            console.error("Error rendering data properties:", error);
+            return html`<p>Error rendering object and window data.</p>`;
+        }
         //return html`
         //      <iframe class="chart-frame" src="${this.url}"></iframe>
         //    `;
