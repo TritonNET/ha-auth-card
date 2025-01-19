@@ -99,7 +99,7 @@ class AuthWebpageCard extends LitElement {
     }
 
     render() {
-        const allProperties = getAllProperties(this);
+        const allProperties = this.getAllProperties(this);
         const formattedProps = Object.entries(allProperties)
             .map(([key, value]) => `${key}: ${typeof value === "object" ? "[Object]" : value}`)
             .join("\n");
