@@ -76,7 +76,7 @@ class AuthWebpageCard extends LitElement {
     getAllProperties(obj) {
         const seen = new WeakSet();
         const result = {};
-    
+        // 
         function recurse(o) {
             if (o && typeof o === "object" && !seen.has(o)) {
                 seen.add(o);
