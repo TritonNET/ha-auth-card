@@ -99,8 +99,10 @@ class AuthWebpageCard extends LitElement {
 
     
     render() {
-        const allProperties = this.getAllProperties(this);
-        return html`<pre>${JSON.stringify(allProperties, null, 2)}</pre>`;
+        const properties = Object.entries(this)
+            .map(([key, value]) => `${key}: ${typeof value === "object" ? "[Object]" : value}`)
+            .join("\n");
+        return html`<pre>${properties}</pre>`;
         //return html`
         //      <iframe class="chart-frame" src="${this.url}"></iframe>
         //    `;
