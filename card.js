@@ -8,6 +8,7 @@ class AuthWebpageCard extends LitElement {
             hass: undefined,
             config: undefined,
             url: undefined,
+            error: undefined
         };
     }
 
@@ -16,6 +17,7 @@ class AuthWebpageCard extends LitElement {
         super();
 
         this.url = "";
+        this.error = undefined;
     }
 
     setConfig(config) {
@@ -35,17 +37,19 @@ class AuthWebpageCard extends LitElement {
 
     setIframeCookie() {
         try {
+            this.error = undefined;
+
             const _hassCon = await this.hassConnection;
 
             const accessToken = _hassCon.auth.data.access_token;
-            if (accessToken == null) {
-                console.error("No hass token found");
+            if (!accessToken) {
+                this.error = "No hass token found";
                 return;
             }
 
             const expiresIn = _hassCon.auth.data.expires_in;
             if (!expiresIn) {
-                console.error("No expiration time found in hass token");
+                this.error = "No expiration time found in hass token";
                 return;
             }
 
@@ -63,11 +67,17 @@ class AuthWebpageCard extends LitElement {
                 this.setIframeCookie(); // Re-read the latest token from localStorage
             }, expiresInMs - 500); // Refresh 500ms before it expires for safety
         } catch (error) {
-            console.error("Error setting iframe cookie:", error);
+            this.error = "Error setting iframe cookie:" + error;
         }
     }
     
     render() {
+        if (this.error != undefined) {
+            return html`
+              <ha-alert alert-type="error">${this.error}</ha-alert>
+            `;
+        }
+
         return html`
               <iframe class="chart-frame" src="${this.url}"></iframe>
             `;
