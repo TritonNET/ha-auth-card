@@ -75,34 +75,36 @@ class AuthWebpageCard extends LitElement {
 
     getAllProperties(obj) {
         const seen = new WeakSet();
-        const result = {};
-        // 
-        function recurse(o) {
+        const properties = {};
+    
+        function collectProps(o) {
             if (o && typeof o === "object" && !seen.has(o)) {
                 seen.add(o);
-                for (const key of Reflect.ownKeys(o)) {
-                    try {
-                        result[key] = o[key];
-                    } catch (e) {
-                        result[key] = `[Error accessing ${key}]`;
+                Object.getOwnPropertyNames(o).forEach((key) => {
+                    if (!properties.hasOwnProperty(key)) {
+                        try {
+                            properties[key] = o[key];
+                        } catch {
+                            properties[key] = "[Error accessing]";
+                        }
                     }
-                }
-                recurse(Object.getPrototypeOf(o));
+                });
+                collectProps(Object.getPrototypeOf(o)); // Traverse the prototype chain
             }
         }
     
-        recurse(obj);
+        collectProps(obj);
 
-        return result;
+        return properties;
     }
 
-
-    
     render() {
-        const properties = Object.entries(this)
+        const allProperties = getAllProperties(this);
+        const formattedProps = Object.entries(allProperties)
             .map(([key, value]) => `${key}: ${typeof value === "object" ? "[Object]" : value}`)
             .join("\n");
-        return html`<pre>${properties}</pre>`;
+
+        return html`<pre>${formattedProps}</pre>`;
         //return html`
         //      <iframe class="chart-frame" src="${this.url}"></iframe>
         //    `;
