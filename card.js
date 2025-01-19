@@ -73,26 +73,34 @@ class AuthWebpageCard extends LitElement {
         }
     }
 
-    safeStringify(obj, space = 2) {
+    getAllProperties(obj) {
         const seen = new WeakSet();
-        return JSON.stringify(
-            obj,
-            (key, value) => {
-                if (typeof value === "object" && value !== null) {
-                    if (seen.has(value)) {
-                        return "[Circular]"; // Replace circular references
+        const result = {};
+    
+        function recurse(o) {
+            if (o && typeof o === "object" && !seen.has(o)) {
+                seen.add(o);
+                for (const key of Reflect.ownKeys(o)) {
+                    try {
+                        result[key] = o[key];
+                    } catch (e) {
+                        result[key] = `[Error accessing ${key}]`;
                     }
-                    seen.add(value);
                 }
-                return value;
-            },
-            space
-        );
+                recurse(Object.getPrototypeOf(o));
+            }
+        }
+    
+        recurse(obj);
+
+        return result;
     }
+
 
     
     render() {
-        return html`<pre>${this.safeStringify(this)}</pre>`;
+        const allProperties = getAllProperties(this);
+        return html`<pre>${JSON.stringify(allProperties, null, 2)}</pre>`;
         //return html`
         //      <iframe class="chart-frame" src="${this.url}"></iframe>
         //    `;
