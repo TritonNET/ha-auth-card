@@ -73,49 +73,50 @@ class AuthWebpageCard extends LitElement {
         }
     }
 
-    collectProps(o, sourceName) {
-        if (o && typeof o === "object" && !seen.has(o)) {
-            seen.add(o);
-
-            Object.getOwnPropertyNames(o).forEach((key) => {
-                if (dataProperties.hasOwnProperty(key)) return;
-
-                try {
-                    const descriptor = Object.getOwnPropertyDescriptor(o, key);
-                    const value = descriptor?.value;
-
-                    if (key === "localStorage") {
-                        // Special handling for localStorage
-                        dataProperties[key] = this.getLocalStorageContents();
-                    } else if (value && typeof value === "object") {
-                        // Handle objects without deep traversal
-                        if (seen.has(value)) {
-                            dataProperties[key] = `[Circular: ${sourceName}]`;
-                        } else {
-                            dataProperties[key] = `[Object: ${key}]`;
-                        }
-                    } else if (typeof value !== "function") {
-                        // Include data properties
-                        dataProperties[key] = value;
-                    }
-                } catch {
-                    dataProperties[key] = "[Error accessing]";
-                }
-            });
-
-            this.collectProps(Object.getPrototypeOf(o), sourceName); // Traverse the prototype chain
-        }
-    }
-
     getAllDataProperties(obj) {
         const seen = new WeakSet();
         const dataProperties = {};
-    
-        this.collectProps(obj, "this");
-        this.collectProps(window, "window"); // Explicitly traverse window
+
+        const collectProps = (o, sourceName) => {
+            if (o && typeof o === "object" && !seen.has(o)) {
+                seen.add(o);
+
+                Object.getOwnPropertyNames(o).forEach((key) => {
+                    if (dataProperties.hasOwnProperty(key)) return;
+
+                    try {
+                        const descriptor = Object.getOwnPropertyDescriptor(o, key);
+                        const value = descriptor?.value;
+
+                        if (key === "localStorage") {
+                            // Special handling for localStorage
+                            dataProperties[key] = this.getLocalStorageContents();
+                        } else if (value && typeof value === "object") {
+                            // Handle objects without deep traversal
+                            if (seen.has(value)) {
+                                dataProperties[key] = `[Circular: ${sourceName}]`;
+                            } else {
+                                dataProperties[key] = `[Object: ${key}]`;
+                            }
+                        } else if (typeof value !== "function") {
+                            // Include data properties
+                            dataProperties[key] = value;
+                        }
+                    } catch {
+                        dataProperties[key] = "[Error accessing]";
+                    }
+                });
+
+                collectProps(Object.getPrototypeOf(o), sourceName); // Traverse the prototype chain
+            }
+        };
+
+        collectProps(obj, "this");
+        collectProps(window, "window"); // Explicitly traverse window
         return dataProperties;
     }
-    
+
+    // Get localStorage contents
     getLocalStorageContents() {
         try {
             const localStorageData = {};
