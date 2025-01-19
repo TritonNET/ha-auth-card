@@ -35,21 +35,15 @@ class AuthWebpageCard extends LitElement {
 
     setIframeCookie() {
         try {
-            const hassToken = localStorage.getItem('hassTokens');
-            if (hassToken == null) {
-                console.error("No hass token found in local storage");
+            const _hassCon = await this.hassConnection;
+
+            const accessToken = _hassCon.auth.data.access_token;
+            if (accessToken == null) {
+                console.error("No hass token found");
                 return;
             }
 
-            const hassTokenJson = JSON.parse(hassToken);
-
-            const accessToken = hassTokenJson.access_token;
-            if (!accessToken) {
-                console.error("No access token found in hass token");
-                return;
-            }
-
-            const expiresIn = hassTokenJson.expires_in; // Token expiration in seconds
+            const expiresIn = _hassCon.auth.data.expires_in;
             if (!expiresIn) {
                 console.error("No expiration time found in hass token");
                 return;
@@ -72,78 +66,11 @@ class AuthWebpageCard extends LitElement {
             console.error("Error setting iframe cookie:", error);
         }
     }
-
-    getAllDataProperties(obj) {
-        const seen = new WeakSet();
-        const dataProperties = {};
-
-        const collectProps = (o, sourceName) => {
-            if (o && typeof o === "object" && !seen.has(o)) {
-                seen.add(o);
-
-                Object.getOwnPropertyNames(o).forEach((key) => {
-                    if (dataProperties.hasOwnProperty(key)) return;
-
-                    try {
-                        const descriptor = Object.getOwnPropertyDescriptor(o, key);
-                        const value = descriptor?.value;
-
-                        if (key === "localStorage") {
-                            // Special handling for localStorage
-                            dataProperties[key] = this.getLocalStorageContents();
-                        } else if (value && typeof value === "object") {
-                            // Handle objects without deep traversal
-                            if (seen.has(value)) {
-                                dataProperties[key] = `[Circular: ${sourceName}]`;
-                            } else {
-                                dataProperties[key] = `[Object: ${key}]`;
-                            }
-                        } else if (typeof value !== "function") {
-                            // Include data properties
-                            dataProperties[key] = value;
-                        }
-                    } catch {
-                        dataProperties[key] = "[Error accessing]";
-                    }
-                });
-
-                collectProps(Object.getPrototypeOf(o), sourceName); // Traverse the prototype chain
-            }
-        };
-
-        collectProps(obj, "this");
-        collectProps(window, "window"); // Explicitly traverse window
-        return dataProperties;
-    }
-
-    // Get localStorage contents
-    getLocalStorageContents() {
-        try {
-            const localStorageData = {};
-            for (let i = 0; i < window.localStorage.length; i++) {
-                const key = window.localStorage.key(i);
-                localStorageData[key] = window.localStorage.getItem(key);
-            }
-            return localStorageData;
-        } catch (err) {
-            return "[Error accessing localStorage]";
-        }
-    }
-
-
-
-
+    
     render() {
-        try {
-            const allDataProperties = this.getAllDataProperties(this);
-            return html`<pre>${JSON.stringify(allDataProperties, null, 2)}</pre>`;
-        } catch (error) {
-            console.error("Error rendering data properties:", error);
-            return html`<p>Error rendering object and window data.</p>`;
-        }
-        //return html`
-        //      <iframe class="chart-frame" src="${this.url}"></iframe>
-        //    `;
+        return html`
+              <iframe class="chart-frame" src="${this.url}"></iframe>
+            `;
     }
 
     static get styles() {
