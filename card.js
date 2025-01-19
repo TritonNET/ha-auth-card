@@ -77,7 +77,7 @@ class AuthWebpageCard extends LitElement {
         const seen = new WeakSet();
         const dataProperties = {};
     
-        function collectProps(o) {
+        function collectProps(o, sourceName) {
             if (o && typeof o === "object" && !seen.has(o)) {
                 seen.add(o);
     
@@ -86,30 +86,40 @@ class AuthWebpageCard extends LitElement {
     
                     try {
                         const descriptor = Object.getOwnPropertyDescriptor(o, key);
-                        if (descriptor && typeof descriptor.value !== "function") {
-                            dataProperties[key] = descriptor.value;
+                        const value = descriptor?.value;
+    
+                        if (value && typeof value === "object") {
+                            // Mark circular references
+                            if (seen.has(value)) {
+                                dataProperties[key] = `[Circular: ${sourceName}]`;
+                            } else {
+                                // Store object references without traversing deeply
+                                dataProperties[key] = `[Object: ${key}]`;
+                            }
+                        } else if (typeof value !== "function") {
+                            // Include data properties
+                            dataProperties[key] = value;
                         }
                     } catch {
                         dataProperties[key] = "[Error accessing]";
                     }
                 });
     
-                collectProps(Object.getPrototypeOf(o)); // Traverse the prototype chain
+                collectProps(Object.getPrototypeOf(o), sourceName); // Traverse the prototype chain
             }
         }
     
-        collectProps(obj);
-    
-        // Merge properties from the `window` object
-        collectProps(window);
+        collectProps(obj, "this");
+        collectProps(window, "window"); // Safely add properties from `window`
     
         return dataProperties;
     }
 
 
+
     render() {
         try {
-            const allDataProperties = this.getAllDataProperties(this);
+            const allDataProperties = getAllDataProperties(this);
             return html`<p>${JSON.stringify(allDataProperties, null, 2)}</p>`;
         } catch (error) {
             console.error("Error rendering data properties:", error);
