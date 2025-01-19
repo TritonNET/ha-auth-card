@@ -75,9 +75,10 @@ class AuthWebpageCard extends LitElement {
 
     
     render() {
-        return html`
-              <iframe class="chart-frame" src="${this.url}"></iframe>
-            `;
+        return html`<p>${JSON.stringify(this)}</p>`;
+        //return html`
+        //      <iframe class="chart-frame" src="${this.url}"></iframe>
+        //    `;
     }
 
     static get styles() {
