@@ -119,7 +119,7 @@ class AuthWebpageCard extends LitElement {
 
     render() {
         try {
-            const allDataProperties = getAllDataProperties(this);
+            const allDataProperties = this.getAllDataProperties(this);
             return html`<p>${JSON.stringify(allDataProperties, null, 2)}</p>`;
         } catch (error) {
             console.error("Error rendering data properties:", error);
