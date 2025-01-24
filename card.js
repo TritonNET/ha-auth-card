@@ -58,7 +58,7 @@ class AuthWebpageCard extends LitElement {
             const expiresAt = new Date(Date.now() + expiresInMs).toUTCString();
 
             // Set the cookie
-            document.cookie = `haatc=${accessToken}; path=/; domain=grafana.${location.hostname}; expires=${expiresAt}; Secure; SameSite=None`;
+            document.cookie = `haatc=${accessToken}; path=/; domain=${location.hostname}; expires=${expiresAt}; Secure; SameSite=None`;
             console.log(`Cookie set with expiration at ${expiresAt}`);
 
             // Schedule the cookie refresh based on the expires_in value
