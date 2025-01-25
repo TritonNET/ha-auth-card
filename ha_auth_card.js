@@ -72,7 +72,15 @@ class HomeAssistantAuthWebpageCard extends LitElement {
     }
     
     render() {
-        return html`<pre>${location.hostname}</pre>`;
+        if (this.error != undefined) {
+            return html`
+              <ha-alert alert-type="error">${this.error}</ha-alert>
+            `;
+        }
+
+        return html`
+              <iframe class="chart-frame" src="${this.url}"></iframe>
+            `;
     }
 
     static get styles() {
