@@ -35,11 +35,11 @@ class HomeAssistantAuthWebpageCard extends LitElement {
         this.setIframeCookie();
     }
 
-    async setIframeCookie() {
+    setIframeCookie() {
         try {
             this.error = undefined;
 
-            const _hassCon = await this.hassConnection;
+            const _hassCon = this.hassConnection;
 
             const accessToken = _hassCon.auth.data.access_token;
             if (!accessToken) {
