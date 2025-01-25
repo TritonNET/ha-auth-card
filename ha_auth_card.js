@@ -51,8 +51,7 @@ class HomeAssistantAuthWebpageCard extends LitElement {
 
             const expiresIn = _hassCon.auth.data.expires_in;
             if (!expiresIn) {
-                this.error = "No expiration time found in hass token";
-                return;
+                expiresIn = 3600; // Default to 1 hour if no expiration time found
             }
 
             // Calculate the expiration time in milliseconds
