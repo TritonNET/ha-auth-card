@@ -1,1 +1,1 @@
-# traefik-ha-auth-card
+# hass-auth-card

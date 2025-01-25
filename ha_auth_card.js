@@ -35,7 +35,7 @@ class HomeAssistantAuthWebpageCard extends LitElement {
         this.setIframeCookie();
     }
 
-    setIframeCookie() {
+    async setIframeCookie() {
         try {
             this.error = undefined;
 
@@ -72,7 +72,7 @@ class HomeAssistantAuthWebpageCard extends LitElement {
     }
     
     render() {
-        return html`<div>${location.hostname}</div>`;
+        return html`<pre>${location.hostname}</pre>`;
     }
 
     static get styles() {
