@@ -72,17 +72,7 @@ class AuthWebpageCard extends LitElement {
     }
     
     render() {
-        if (this.error != undefined) {
-            return html`
-              <ha-alert alert-type="error">${this.error}</ha-alert>
-            `;
-        }
-
-        return html`<pre>${location.hostname}</pre>`;
-
-        //return html`
-        //      <iframe class="chart-frame" src="${this.url}"></iframe>
-        //    `;
+        return html`<div>${location.hostname}</div>`;
     }
 
     static get styles() {
