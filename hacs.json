@@ -1,6 +1,6 @@
 {
-    "name": "Auth Webpage Card",
+    "name": "Home Assistant Auth Webpage Card",
     "render_readme": true,
     "content_in_root": false,
-    "filename": "card.js"
+    "filename": "ha_auth_card.js"
 }
