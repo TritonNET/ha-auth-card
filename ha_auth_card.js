@@ -49,7 +49,7 @@ class HomeAssistantAuthWebpageCard extends LitElement {
                 return;
             }
 
-            const expiresIn = _hassCon.auth.data.expires_in;
+            let expiresIn = _hassCon.auth.data.expires_in;
             if (!expiresIn) {
                 expiresIn = 3600; // Default to 1 hour if no expiration time found
             }
