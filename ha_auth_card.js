@@ -20,7 +20,7 @@ class HomeAssistantAuthWebpageCard extends LitElement {
         this.error = undefined;
     }
 
-    setConfig(config) {
+    async setConfig(config) {
         this.config = config;
 
         if (this.config.config != undefined) {
@@ -32,13 +32,13 @@ class HomeAssistantAuthWebpageCard extends LitElement {
             }
         }
         
-        this.setIframeCookie().catch((error) => {
-            console.error("Error setting iframe cookie:", error);
-        });
+        await this.setIframeCookie();
     }
 
-    async setIframeCookie() {
-        try {
+    async setIframeCookie()
+    {
+        try
+        {
             this.error = undefined;
 
             const _hassCon = await this.hassConnection;
@@ -64,13 +64,14 @@ class HomeAssistantAuthWebpageCard extends LitElement {
             console.log(`Cookie set with expiration at ${expiresAt}`);
 
             // Schedule the cookie refresh based on the expires_in value
-            setTimeout(() => {
+            setTimeout(() =>
+            {
                 console.log("Refreshing cookie...");
-                this.setIframeCookie().catch((error) => {
-                    console.error("Error setting iframe cookie:", error);
-                }); // Re-read the latest token from localStorage
+                this.setIframeCookie(); // Re-read the latest token from localStorage
             }, expiresInMs - 500); // Refresh 500ms before it expires for safety
-        } catch (error) {
+        }
+        catch (error)
+        {
             this.error = "Error setting iframe cookie:" + error;
         }
     }
