@@ -41,7 +41,7 @@ class HomeAssistantAuthWebpageCard extends LitElement {
         {
             this.error = undefined;
 
-            const _hassCon = await this.hassConnection;
+            const _hassCon = await hassConnection;
 
             const accessToken = _hassCon.auth.data.access_token;
             if (!accessToken) {
