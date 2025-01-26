@@ -60,12 +60,12 @@ class HomeAssistantAuthWebpageCard extends LitElement {
 
             // Set the cookie
             document.cookie = `haatc=${accessToken}; path=/; domain=.${location.hostname}; expires=${expiresAt}; Secure; SameSite=None`;
-            console.log(`Cookie set with expiration at ${expiresAt}`);
+            //console.log(`Cookie set with expiration at ${expiresAt}`);
 
             // Schedule the cookie refresh based on the expires_in value
             setTimeout(() =>
             {
-                console.log("Refreshing cookie...");
+                //console.log("Refreshing cookie...");
                 this.setIframeCookie().catch((error) => {
                     console.error("Error refreshing the cookie:", error);
                 }); // Re-read the latest token from localStorage
