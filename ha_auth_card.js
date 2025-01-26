@@ -29,10 +29,57 @@ class HomeAssistantAuthWebpageCard extends LitElement {
                 case "generic":
                     this.url = this.config.config.url;
                     break;
+                case "grafana":
+                    this.url = this.getGrafanaUrl(this.config.config);                    
+                    break;
             }
         }
         
         await this.setIframeCookie();
+    }
+
+    getGrafanaUrl(config) {
+        // https://grafana.ha.tritonnet.nz/d-solo/c2666509-965a-4991-bad0-3cfcb85bc31f/salt-reservoir?orgId=2&panelId=2
+        const domain = config.domain;
+        if (domain === undefined)
+        {
+            this.error = "No 'domain' found in config";
+            return "";
+        }
+
+        const id = config.id;
+        if (id === undefined)
+        {
+            this.error = "No 'id' found in config";
+            return "";
+        }
+        
+        const name = config.name;
+        if (name === undefined)
+        {
+            this.error = "No 'name' found in config";
+            return "";
+        }
+
+        const orgId = config.orgId;
+        if (orgId === undefined)
+        {
+            this.error = "No 'orgId' found in config";
+            return "";
+        }
+
+        const panelID = config.panelID;
+        if (panelID === undefined)
+        {
+            this.error = "No 'panelID' found in config";
+            return "";
+        }
+        
+        const scheme = config.scheme || "https";
+
+        this.error = undefined;
+
+        return `${scheme}://${domain}/d-solo/${id}/${name}?orgId=${orgId}&panelId=${panelID}`;
     }
 
     async setIframeCookie()
