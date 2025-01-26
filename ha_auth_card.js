@@ -34,55 +34,55 @@ class HomeAssistantAuthWebpageCard extends LitElement {
                     break;
             }
         }
-        
-        await this.setIframeCookie();
+
+        if (this.url != undefined)
+            await this.setIframeCookieAsync();
     }
 
     getGrafanaUrl(config) {
-        // https://grafana.ha.tritonnet.nz/d-solo/c2666509-965a-4991-bad0-3cfcb85bc31f/salt-reservoir?orgId=2&panelId=2
         const domain = config.domain;
         if (domain === undefined)
         {
             this.error = "No 'domain' found in config";
-            return "";
+            return undefined;
         }
 
-        const id = config.id;
-        if (id === undefined)
+        const ID = config.id || config.ID || config.Id;
+        if (ID === undefined)
         {
             this.error = "No 'id' found in config";
-            return "";
+            return undefined;
         }
         
         const name = config.name;
         if (name === undefined)
         {
             this.error = "No 'name' found in config";
-            return "";
+            return undefined;
         }
 
-        const orgId = config.orgId;
-        if (orgId === undefined)
+        const orgID = config.orgId || config.orgID;
+        if (orgID === undefined)
         {
             this.error = "No 'orgId' found in config";
-            return "";
+            return undefined;
         }
 
-        const panelID = config.panelID;
+        const panelID = config.panelId || config.panelID;
         if (panelID === undefined)
         {
             this.error = "No 'panelID' found in config";
-            return "";
+            return undefined;
         }
         
         const scheme = config.scheme || "https";
 
         this.error = undefined;
 
-        return `${scheme}://${domain}/d-solo/${id}/${name}?orgId=${orgId}&panelId=${panelID}`;
+        return `${scheme}://${domain}/d-solo/${ID}/${name}?orgId=${orgID}&panelId=${panelID}`;
     }
 
-    async setIframeCookie()
+    async setIframeCookieAsync()
     {
         try
         {
@@ -113,7 +113,7 @@ class HomeAssistantAuthWebpageCard extends LitElement {
             setTimeout(() =>
             {
                 //console.log("Refreshing cookie...");
-                this.setIframeCookie().catch((error) => {
+                this.setIframeCookieAsync().catch((error) => {
                     console.error("Error refreshing the cookie:", error);
                 }); // Re-read the latest token from localStorage
             }, expiresInMs - 500); // Refresh 500ms before it expires for safety
