@@ -223,71 +223,63 @@ class HomeAssistantAuthWebpageEditor extends LitElement {
         return html`
             <div>
                 <label for="type">Select Type:</label>
-                <select id="type" @change="${this.handleTypeChange}">
-                    <option value="generic" ?selected="${this.selectedType === "generic"}">Generic</option>
-                    <option value="grafana" ?selected="${this.selectedType === "grafana"}">Grafana</option>
-                </select>
+                <ha-select id="type" @change="${this.handleTypeChange}" .value="${this.selectedType}">
+                    <mwc-list-item value="generic">Generic</mwc-list-item>
+                    <mwc-list-item value="grafana">Grafana</mwc-list-item>
+                </ha-select>
 
                 ${this.selectedType === "generic"
                 ? html`
                           <div>
                               <label for="generic-url">URL:</label>
-                              <input
+                              <ha-textfield
                                   id="generic-url"
-                                  type="text"
                                   .value="${this.genericUrl}"
                                   @input="${this.handleGenericUrlChange}"
-                              />
+                              ></ha-textfield>
                           </div>
                       `
                 : html`
                           <div>
                               <label for="domain">Domain:</label>
-                              <input
+                              <ha-textfield
                                   id="domain"
-                                  type="text"
                                   .value="${this.grafanaConfig.domain}"
                                   @input="${(e) => this.handleGrafanaConfigChange("domain", e)}"
-                              />
+                              ></ha-textfield>
                               <label for="id">ID:</label>
-                              <input
+                              <ha-textfield
                                   id="id"
-                                  type="text"
                                   .value="${this.grafanaConfig.id}"
                                   @input="${(e) => this.handleGrafanaConfigChange("id", e)}"
-                              />
+                              ></ha-textfield>
                               <label for="name">Name:</label>
-                              <input
+                              <ha-textfield
                                   id="name"
-                                  type="text"
                                   .value="${this.grafanaConfig.name}"
                                   @input="${(e) => this.handleGrafanaConfigChange("name", e)}"
-                              />
+                              ></ha-textfield>
                               <label for="orgId">Org ID:</label>
-                              <input
+                              <ha-textfield
                                   id="orgId"
-                                  type="text"
                                   .value="${this.grafanaConfig.orgId}"
                                   @input="${(e) => this.handleGrafanaConfigChange("orgId", e)}"
-                              />
+                              ></ha-textfield>
                               <label for="panelId">Panel ID:</label>
-                              <input
+                              <ha-textfield
                                   id="panelId"
-                                  type="text"
                                   .value="${this.grafanaConfig.panelId}"
                                   @input="${(e) => this.handleGrafanaConfigChange("panelId", e)}"
-                              />
+                              ></ha-textfield>
                               <label for="scheme">Scheme:</label>
-                              <input
-                                  id="scheme"
-                                  type="text"
-                                  .value="${this.grafanaConfig.scheme}"
-                                  @input="${(e) => this.handleGrafanaConfigChange("scheme", e)}"
-                              />
+                              <ha-select id="scheme" @change="${(e) => this.handleGrafanaConfigChange("scheme", e)}" .value="${this.grafanaConfig.scheme}">
+                                  <mwc-list-item value="https">https</mwc-list-item>
+                                  <mwc-list-item value="http">http</mwc-list-item>
+                              </ha-select>
                           </div>
                       `}
 
-                <button @click="${this.saveConfig}">Save</button>
+                <mwc-button @click="${this.saveConfig}" raised>Save</mwc-button>
             </div>
         `;
     }
@@ -299,25 +291,14 @@ class HomeAssistantAuthWebpageEditor extends LitElement {
                 margin: 5px 0;
             }
 
-            input {
+            ha-select,
+            ha-textfield {
                 margin-bottom: 10px;
                 width: 100%;
-                padding: 5px;
-                box-sizing: border-box;
             }
 
-            button {
+            mwc-button {
                 margin-top: 10px;
-                padding: 10px;
-                background-color: #007bff;
-                color: white;
-                border: none;
-                border-radius: 5px;
-                cursor: pointer;
-            }
-
-            button:hover {
-                background-color: #0056b3;
             }
         `;
     }
