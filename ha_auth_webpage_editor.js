@@ -97,8 +97,12 @@ export class HomeAssistantAuthWebpageEditor extends LitElement {
         }
 
         const folder = this.grafanaFolders[foldersDropdown.selectedIndex];
-        const { scheme, domain } = this.grafanaConfig;
+        if (!folder || !folder.id) {
+            console.error("Invalid folder selected.");
+            return;
+        }
 
+        const { scheme, domain } = this.grafanaConfig;
         try {
             const response = await fetch(`${scheme}://${domain}/api/search?folderIds=${folder.id}`, {
                 headers: { "Content-Type": "application/json" },
@@ -122,8 +126,12 @@ export class HomeAssistantAuthWebpageEditor extends LitElement {
         }
 
         const dashboard = this.grafanaDashboards[dashboardsDropdown.selectedIndex];
-        const { scheme, domain } = this.grafanaConfig;
+        if (!dashboard || !dashboard.uid) {
+            console.error("Invalid dashboard selected.");
+            return;
+        }
 
+        const { scheme, domain } = this.grafanaConfig;
         try {
             const response = await fetch(`${scheme}://${domain}/api/dashboards/uid/${dashboard.uid}`, {
                 headers: { "Content-Type": "application/json" },
@@ -148,6 +156,11 @@ export class HomeAssistantAuthWebpageEditor extends LitElement {
         }
 
         const panel = this.grafanaPanels[panelsDropdown.selectedIndex];
+        if (!panel || !panel.id) {
+            console.error("Invalid panel selected.");
+            return;
+        }
+
         this.config.url = `${this.grafanaConfig.scheme}://${this.grafanaConfig.domain}/d/${panel.id}`;
         this.dispatchEvent(
             new CustomEvent("config-changed", {
