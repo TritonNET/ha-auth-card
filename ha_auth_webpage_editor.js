@@ -9,7 +9,7 @@ export class HomeAssistantAuthWebpageEditor extends LitElement {
             grafanaConfig: { type: Object },
             grafanaFolders: { type: Array },
             grafanaDashboards: { type: Array },
-            grafanaPanels: { type: Array }
+            grafanaPanels: { type: Array },
         };
     }
 
@@ -20,7 +20,7 @@ export class HomeAssistantAuthWebpageEditor extends LitElement {
         this.genericUrl = "";
         this.grafanaConfig = {
             domain: "",
-            scheme: "https"
+            scheme: "https",
         };
         this.grafanaFolders = [];
         this.grafanaDashboards = [];
@@ -36,7 +36,7 @@ export class HomeAssistantAuthWebpageEditor extends LitElement {
         } else if (this.selectedType === "grafana") {
             this.grafanaConfig = {
                 domain: config.domain || "",
-                scheme: config.scheme || "https"
+                scheme: config.scheme || "https",
             };
         }
     }
@@ -71,7 +71,7 @@ export class HomeAssistantAuthWebpageEditor extends LitElement {
         const { scheme, domain } = this.grafanaConfig;
         try {
             const response = await fetch(`${scheme}://${domain}/api/folders`, {
-                headers: { 'Content-Type': 'application/json' }
+                headers: { "Content-Type": "application/json" },
             });
             if (response.ok) {
                 this.grafanaFolders = await response.json();
@@ -83,15 +83,17 @@ export class HomeAssistantAuthWebpageEditor extends LitElement {
         }
     }
 
-    async loadDashboards(folder) {
+    async loadDashboards() {
+        const folder = this.grafanaFolders[this.shadowRoot.getElementById("folders").selectedIndex];
         if (!folder || !folder.id) {
             console.error("Invalid folder selected.");
             return;
         }
+
         const { scheme, domain } = this.grafanaConfig;
         try {
             const response = await fetch(`${scheme}://${domain}/api/search?folderIds=${folder.id}`, {
-                headers: { 'Content-Type': 'application/json' }
+                headers: { "Content-Type": "application/json" },
             });
             if (response.ok) {
                 this.grafanaDashboards = await response.json();
@@ -103,15 +105,17 @@ export class HomeAssistantAuthWebpageEditor extends LitElement {
         }
     }
 
-    async loadPanels(dashboard) {
+    async loadPanels() {
+        const dashboard = this.grafanaDashboards[this.shadowRoot.getElementById("dashboards").selectedIndex];
         if (!dashboard || !dashboard.uid) {
             console.error("Invalid dashboard selected.");
             return;
         }
+
         const { scheme, domain } = this.grafanaConfig;
         try {
             const response = await fetch(`${scheme}://${domain}/api/dashboards/uid/${dashboard.uid}`, {
-                headers: { 'Content-Type': 'application/json' }
+                headers: { "Content-Type": "application/json" },
             });
             if (response.ok) {
                 const data = await response.json();
@@ -124,17 +128,21 @@ export class HomeAssistantAuthWebpageEditor extends LitElement {
         }
     }
 
-    selectPanel(panel) {
+    selectPanel() {
+        const panel = this.grafanaPanels[this.shadowRoot.getElementById("panels").selectedIndex];
         if (!panel || !panel.id) {
             console.error("Invalid panel selected.");
             return;
         }
+
         this.config.url = `${this.grafanaConfig.scheme}://${this.grafanaConfig.domain}/d/${panel.id}`;
-        this.dispatchEvent(new CustomEvent("config-changed", {
-            detail: { config: this.config },
-            bubbles: true,
-            composed: true
-        }));
+        this.dispatchEvent(
+            new CustomEvent("config-changed", {
+                detail: { config: this.config },
+                bubbles: true,
+                composed: true,
+            })
+        );
     }
 
     render() {
@@ -149,38 +157,47 @@ export class HomeAssistantAuthWebpageEditor extends LitElement {
                 ${this.selectedType === "grafana"
                 ? html`
                           <div>
-                              <ha-select @change="${(e) => this.handleGrafanaConfigChange('scheme', e)}" .value="${this.grafanaConfig.scheme}">
+                              <ha-select
+                                  @change="${(e) => this.handleGrafanaConfigChange("scheme", e)}"
+                                  .value="${this.grafanaConfig.scheme}"
+                              >
                                   <mwc-list-item value="https">https</mwc-list-item>
                                   <mwc-list-item value="http">http</mwc-list-item>
                               </ha-select>
                               <ha-textfield
                                   label="Grafana Domain"
                                   .value="${this.grafanaConfig.domain}"
-                                  @input="${(e) => this.handleGrafanaConfigChange('domain', e)}"
+                                  @input="${(e) => this.handleGrafanaConfigChange("domain", e)}"
                               ></ha-textfield>
                               <mwc-button @click="${this.loadGrafanaFolders}" raised>Load</mwc-button>
                           </div>
                           <div>
                               <label for="folders">Folders:</label>
-                              <ha-select id="folders" @change="${(e) => {
-                                                  const selectedFolder = this.grafanaFolders[e.target.selectedIndex];
-                                                  this.loadDashboards(selectedFolder);
-                                              }}">
-                                  ${this.grafanaFolders.map(folder => html`<mwc-list-item .value="${folder}">${folder.title}</mwc-list-item>`)}
+                              <ha-select
+                                  id="folders"
+                                  @change="${this.loadDashboards}"
+                              >
+                                  ${this.grafanaFolders.map(
+                    (folder) => html`<mwc-list-item>${folder.title}</mwc-list-item>`
+                )}
                               </ha-select>
                               <label for="dashboards">Dashboards:</label>
-                              <ha-select id="dashboards" @change="${(e) => {
-                                                  const selectedDashboard = this.grafanaDashboards[e.target.selectedIndex];
-                                                  this.loadPanels(selectedDashboard);
-                                              }}">
-                                  ${this.grafanaDashboards.map(dashboard => html`<mwc-list-item .value="${dashboard}">${dashboard.title}</mwc-list-item>`)}
+                              <ha-select
+                                  id="dashboards"
+                                  @change="${this.loadPanels}"
+                              >
+                                  ${this.grafanaDashboards.map(
+                    (dashboard) => html`<mwc-list-item>${dashboard.title}</mwc-list-item>`
+                )}
                               </ha-select>
                               <label for="panels">Panels:</label>
-                              <ha-select id="panels" @change="${(e) => {
-                                                  const selectedPanel = this.grafanaPanels[e.target.selectedIndex];
-                                                  this.selectPanel(selectedPanel);
-                                              }}">
-                                  ${this.grafanaPanels.map(panel => html`<mwc-list-item .value="${panel}">${panel.title}</mwc-list-item>`)}
+                              <ha-select
+                                  id="panels"
+                                  @change="${this.selectPanel}"
+                              >
+                                  ${this.grafanaPanels.map(
+                    (panel) => html`<mwc-list-item>${panel.title}</mwc-list-item>`
+                )}
                               </ha-select>
                           </div>
                       `
