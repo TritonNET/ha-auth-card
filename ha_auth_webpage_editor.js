@@ -42,8 +42,24 @@ export class HomeAssistantAuthWebpageEditor extends LitElement {
     }
 
     handleTypeChange(event) {
-        this.selectedType = event.target.value;
-        this.config = {}; // Reset config
+        const newType = event.target.value;
+        this.selectedType = newType;
+
+        if (newType === "generic") {
+            this.config = {
+                ...this.config,
+                type: "generic",
+                url: this.genericUrl || "",
+            };
+        } else if (newType === "grafana") {
+            this.config = {
+                ...this.config,
+                type: "grafana",
+                domain: this.grafanaConfig.domain || "",
+                scheme: this.grafanaConfig.scheme || "https",
+            };
+        }
+
         this.requestUpdate();
     }
 
