@@ -69,6 +69,11 @@ export class HomeAssistantAuthWebpageEditor extends LitElement {
 
     async loadGrafanaFolders() {
         const { scheme, domain } = this.grafanaConfig;
+        if (!domain) {
+            console.error("Grafana domain is not specified.");
+            return;
+        }
+
         try {
             const response = await fetch(`${scheme}://${domain}/api/folders`, {
                 headers: { "Content-Type": "application/json" },
@@ -84,13 +89,14 @@ export class HomeAssistantAuthWebpageEditor extends LitElement {
     }
 
     async loadDashboards() {
-        const folderIndex = this.shadowRoot.getElementById("folders").selectedIndex;
-        if (folderIndex < 0 || !this.grafanaFolders[folderIndex]) {
+        const folderIndex = this.shadowRoot.getElementById("folders")?.selectedIndex;
+        if (folderIndex === undefined || folderIndex < 0 || !this.grafanaFolders[folderIndex]) {
             console.error("Invalid folder selected.");
             return;
         }
         const folder = this.grafanaFolders[folderIndex];
         const { scheme, domain } = this.grafanaConfig;
+
         try {
             const response = await fetch(`${scheme}://${domain}/api/search?folderIds=${folder.id}`, {
                 headers: { "Content-Type": "application/json" },
@@ -106,13 +112,14 @@ export class HomeAssistantAuthWebpageEditor extends LitElement {
     }
 
     async loadPanels() {
-        const dashboardIndex = this.shadowRoot.getElementById("dashboards").selectedIndex;
-        if (dashboardIndex < 0 || !this.grafanaDashboards[dashboardIndex]) {
+        const dashboardIndex = this.shadowRoot.getElementById("dashboards")?.selectedIndex;
+        if (dashboardIndex === undefined || dashboardIndex < 0 || !this.grafanaDashboards[dashboardIndex]) {
             console.error("Invalid dashboard selected.");
             return;
         }
         const dashboard = this.grafanaDashboards[dashboardIndex];
         const { scheme, domain } = this.grafanaConfig;
+
         try {
             const response = await fetch(`${scheme}://${domain}/api/dashboards/uid/${dashboard.uid}`, {
                 headers: { "Content-Type": "application/json" },
@@ -129,8 +136,8 @@ export class HomeAssistantAuthWebpageEditor extends LitElement {
     }
 
     selectPanel() {
-        const panelIndex = this.shadowRoot.getElementById("panels").selectedIndex;
-        if (panelIndex < 0 || !this.grafanaPanels[panelIndex]) {
+        const panelIndex = this.shadowRoot.getElementById("panels")?.selectedIndex;
+        if (panelIndex === undefined || panelIndex < 0 || !this.grafanaPanels[panelIndex]) {
             console.error("Invalid panel selected.");
             return;
         }
