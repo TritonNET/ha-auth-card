@@ -2,5 +2,15 @@
     "name": "Home Assistant Auth Webpage Card",
     "render_readme": true,
     "content_in_root": false,
-    "filename": "ha_auth_card.js"
+    "filename": "ha_auth_webpage_card.js",
+    "resources": [
+        {
+            "url": "/hacsfiles/ha_auth_webpage_card.js",
+            "type": "module"
+        },
+        {
+            "url": "/hacsfiles/ha_auth_webpage_editor.js",
+            "type": "module"
+        }
+    ]
 }
