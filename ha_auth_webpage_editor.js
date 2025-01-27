@@ -80,6 +80,7 @@ export class HomeAssistantAuthWebpageEditor extends LitElement {
             });
             if (response.ok) {
                 this.grafanaFolders = await response.json();
+                this.requestUpdate();
             } else {
                 console.error("Failed to load folders from Grafana.");
             }
@@ -89,12 +90,13 @@ export class HomeAssistantAuthWebpageEditor extends LitElement {
     }
 
     async loadDashboards() {
-        const folderIndex = this.shadowRoot.getElementById("folders")?.selectedIndex;
-        if (folderIndex === undefined || folderIndex < 0 || !this.grafanaFolders[folderIndex]) {
+        const foldersDropdown = this.shadowRoot.getElementById("folders");
+        if (!foldersDropdown || foldersDropdown.selectedIndex < 0) {
             console.error("Invalid folder selected.");
             return;
         }
-        const folder = this.grafanaFolders[folderIndex];
+
+        const folder = this.grafanaFolders[foldersDropdown.selectedIndex];
         const { scheme, domain } = this.grafanaConfig;
 
         try {
@@ -103,6 +105,7 @@ export class HomeAssistantAuthWebpageEditor extends LitElement {
             });
             if (response.ok) {
                 this.grafanaDashboards = await response.json();
+                this.requestUpdate();
             } else {
                 console.error("Failed to load dashboards from Grafana.");
             }
@@ -112,12 +115,13 @@ export class HomeAssistantAuthWebpageEditor extends LitElement {
     }
 
     async loadPanels() {
-        const dashboardIndex = this.shadowRoot.getElementById("dashboards")?.selectedIndex;
-        if (dashboardIndex === undefined || dashboardIndex < 0 || !this.grafanaDashboards[dashboardIndex]) {
+        const dashboardsDropdown = this.shadowRoot.getElementById("dashboards");
+        if (!dashboardsDropdown || dashboardsDropdown.selectedIndex < 0) {
             console.error("Invalid dashboard selected.");
             return;
         }
-        const dashboard = this.grafanaDashboards[dashboardIndex];
+
+        const dashboard = this.grafanaDashboards[dashboardsDropdown.selectedIndex];
         const { scheme, domain } = this.grafanaConfig;
 
         try {
@@ -127,6 +131,7 @@ export class HomeAssistantAuthWebpageEditor extends LitElement {
             if (response.ok) {
                 const data = await response.json();
                 this.grafanaPanels = data.dashboard.panels || [];
+                this.requestUpdate();
             } else {
                 console.error("Failed to load panels from Grafana.");
             }
@@ -136,12 +141,13 @@ export class HomeAssistantAuthWebpageEditor extends LitElement {
     }
 
     selectPanel() {
-        const panelIndex = this.shadowRoot.getElementById("panels")?.selectedIndex;
-        if (panelIndex === undefined || panelIndex < 0 || !this.grafanaPanels[panelIndex]) {
+        const panelsDropdown = this.shadowRoot.getElementById("panels");
+        if (!panelsDropdown || panelsDropdown.selectedIndex < 0) {
             console.error("Invalid panel selected.");
             return;
         }
-        const panel = this.grafanaPanels[panelIndex];
+
+        const panel = this.grafanaPanels[panelsDropdown.selectedIndex];
         this.config.url = `${this.grafanaConfig.scheme}://${this.grafanaConfig.domain}/d/${panel.id}`;
         this.dispatchEvent(
             new CustomEvent("config-changed", {
