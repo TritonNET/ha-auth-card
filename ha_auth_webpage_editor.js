@@ -84,12 +84,12 @@ export class HomeAssistantAuthWebpageEditor extends LitElement {
     }
 
     async loadDashboards() {
-        const folder = this.grafanaFolders[this.shadowRoot.getElementById("folders").selectedIndex];
-        if (!folder || !folder.id) {
+        const folderIndex = this.shadowRoot.getElementById("folders").selectedIndex;
+        if (folderIndex < 0 || !this.grafanaFolders[folderIndex]) {
             console.error("Invalid folder selected.");
             return;
         }
-
+        const folder = this.grafanaFolders[folderIndex];
         const { scheme, domain } = this.grafanaConfig;
         try {
             const response = await fetch(`${scheme}://${domain}/api/search?folderIds=${folder.id}`, {
@@ -106,12 +106,12 @@ export class HomeAssistantAuthWebpageEditor extends LitElement {
     }
 
     async loadPanels() {
-        const dashboard = this.grafanaDashboards[this.shadowRoot.getElementById("dashboards").selectedIndex];
-        if (!dashboard || !dashboard.uid) {
+        const dashboardIndex = this.shadowRoot.getElementById("dashboards").selectedIndex;
+        if (dashboardIndex < 0 || !this.grafanaDashboards[dashboardIndex]) {
             console.error("Invalid dashboard selected.");
             return;
         }
-
+        const dashboard = this.grafanaDashboards[dashboardIndex];
         const { scheme, domain } = this.grafanaConfig;
         try {
             const response = await fetch(`${scheme}://${domain}/api/dashboards/uid/${dashboard.uid}`, {
@@ -129,12 +129,12 @@ export class HomeAssistantAuthWebpageEditor extends LitElement {
     }
 
     selectPanel() {
-        const panel = this.grafanaPanels[this.shadowRoot.getElementById("panels").selectedIndex];
-        if (!panel || !panel.id) {
+        const panelIndex = this.shadowRoot.getElementById("panels").selectedIndex;
+        if (panelIndex < 0 || !this.grafanaPanels[panelIndex]) {
             console.error("Invalid panel selected.");
             return;
         }
-
+        const panel = this.grafanaPanels[panelIndex];
         this.config.url = `${this.grafanaConfig.scheme}://${this.grafanaConfig.domain}/d/${panel.id}`;
         this.dispatchEvent(
             new CustomEvent("config-changed", {
@@ -173,31 +173,18 @@ export class HomeAssistantAuthWebpageEditor extends LitElement {
                           </div>
                           <div>
                               <label for="folders">Folders:</label>
-                              <ha-select
-                                  id="folders"
-                                  @change="${this.loadDashboards}"
-                              >
-                                  ${this.grafanaFolders.map(
-                    (folder) => html`<mwc-list-item>${folder.title}</mwc-list-item>`
-                )}
+                              <ha-select id="folders" @change="${this.loadDashboards}">
+                                  ${this.grafanaFolders.map((folder) => html`<mwc-list-item>${folder.title}</mwc-list-item>`)}
                               </ha-select>
                               <label for="dashboards">Dashboards:</label>
-                              <ha-select
-                                  id="dashboards"
-                                  @change="${this.loadPanels}"
-                              >
+                              <ha-select id="dashboards" @change="${this.loadPanels}">
                                   ${this.grafanaDashboards.map(
                     (dashboard) => html`<mwc-list-item>${dashboard.title}</mwc-list-item>`
                 )}
                               </ha-select>
                               <label for="panels">Panels:</label>
-                              <ha-select
-                                  id="panels"
-                                  @change="${this.selectPanel}"
-                              >
-                                  ${this.grafanaPanels.map(
-                    (panel) => html`<mwc-list-item>${panel.title}</mwc-list-item>`
-                )}
+                              <ha-select id="panels" @change="${this.selectPanel}">
+                                  ${this.grafanaPanels.map((panel) => html`<mwc-list-item>${panel.title}</mwc-list-item>`)}
                               </ha-select>
                           </div>
                       `
