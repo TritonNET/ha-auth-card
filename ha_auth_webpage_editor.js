@@ -98,7 +98,7 @@ export class HomeAssistantAuthWebpageEditor extends LitElement {
 
         const folder = this.grafanaFolders[foldersDropdown.selectedIndex];
         if (!folder || !folder.id) {
-            console.error("Invalid folder selected.");
+            console.error("Folder does not have an id.");
             return;
         }
 
@@ -127,7 +127,7 @@ export class HomeAssistantAuthWebpageEditor extends LitElement {
 
         const dashboard = this.grafanaDashboards[dashboardsDropdown.selectedIndex];
         if (!dashboard || !dashboard.uid) {
-            console.error("Invalid dashboard selected.");
+            console.error("Dashboard does not have a uid.");
             return;
         }
 
@@ -157,7 +157,7 @@ export class HomeAssistantAuthWebpageEditor extends LitElement {
 
         const panel = this.grafanaPanels[panelsDropdown.selectedIndex];
         if (!panel || !panel.id) {
-            console.error("Invalid panel selected.");
+            console.error("Panel does not have an id.");
             return;
         }
 
