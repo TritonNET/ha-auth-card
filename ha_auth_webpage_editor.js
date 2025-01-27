@@ -79,7 +79,13 @@ export class HomeAssistantAuthWebpageEditor extends LitElement {
                 headers: { "Content-Type": "application/json" },
             });
             if (response.ok) {
-                this.grafanaFolders = await response.json();
+                const data = await response.json();
+                if (Array.isArray(data)) {
+                    this.grafanaFolders = data;
+                } else {
+                    console.error("Unexpected response format for folders:", data);
+                    this.grafanaFolders = [];
+                }
                 this.requestUpdate();
             } else {
                 console.error("Failed to load folders from Grafana.");
@@ -98,7 +104,7 @@ export class HomeAssistantAuthWebpageEditor extends LitElement {
 
         const folder = this.grafanaFolders[foldersDropdown.selectedIndex];
         if (!folder || !folder.id) {
-            console.error("Folder does not have a valid id.");
+            console.error("Folder does not have a valid id. Folder data:", folder);
             return;
         }
 
@@ -108,7 +114,13 @@ export class HomeAssistantAuthWebpageEditor extends LitElement {
                 headers: { "Content-Type": "application/json" },
             });
             if (response.ok) {
-                this.grafanaDashboards = await response.json();
+                const data = await response.json();
+                if (Array.isArray(data)) {
+                    this.grafanaDashboards = data;
+                } else {
+                    console.error("Unexpected response format for dashboards:", data);
+                    this.grafanaDashboards = [];
+                }
                 this.requestUpdate();
             } else {
                 console.error("Failed to load dashboards from Grafana.");
@@ -127,7 +139,7 @@ export class HomeAssistantAuthWebpageEditor extends LitElement {
 
         const dashboard = this.grafanaDashboards[dashboardsDropdown.selectedIndex];
         if (!dashboard || !dashboard.uid) {
-            console.error("Dashboard does not have a valid uid.");
+            console.error("Dashboard does not have a valid uid. Dashboard data:", dashboard);
             return;
         }
 
@@ -138,7 +150,12 @@ export class HomeAssistantAuthWebpageEditor extends LitElement {
             });
             if (response.ok) {
                 const data = await response.json();
-                this.grafanaPanels = data.dashboard.panels || [];
+                if (data.dashboard && Array.isArray(data.dashboard.panels)) {
+                    this.grafanaPanels = data.dashboard.panels;
+                } else {
+                    console.error("Unexpected response format for panels:", data);
+                    this.grafanaPanels = [];
+                }
                 this.requestUpdate();
             } else {
                 console.error("Failed to load panels from Grafana.");
@@ -157,7 +174,7 @@ export class HomeAssistantAuthWebpageEditor extends LitElement {
 
         const panel = this.grafanaPanels[panelsDropdown.selectedIndex];
         if (!panel || !panel.id) {
-            console.error("Panel does not have a valid id.");
+            console.error("Panel does not have a valid id. Panel data:", panel);
             return;
         }
 
