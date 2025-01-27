@@ -6,7 +6,10 @@ export class HomeAssistantAuthWebpageEditor extends LitElement {
             config: { type: Object },
             selectedType: { type: String },
             genericUrl: { type: String },
-            grafanaConfig: { type: Object }
+            grafanaConfig: { type: Object },
+            grafanaFolders: { type: Array },
+            grafanaDashboards: { type: Array },
+            grafanaPanels: { type: Array }
         };
     }
 
@@ -17,12 +20,11 @@ export class HomeAssistantAuthWebpageEditor extends LitElement {
         this.genericUrl = "";
         this.grafanaConfig = {
             domain: "",
-            id: "",
-            name: "",
-            orgId: "",
-            panelId: "",
             scheme: "https"
         };
+        this.grafanaFolders = [];
+        this.grafanaDashboards = [];
+        this.grafanaPanels = [];
     }
 
     setConfig(config) {
@@ -34,10 +36,6 @@ export class HomeAssistantAuthWebpageEditor extends LitElement {
         } else if (this.selectedType === "grafana") {
             this.grafanaConfig = {
                 domain: config.domain || "",
-                id: config.id || "",
-                name: config.name || "",
-                orgId: config.orgId || "",
-                panelId: config.panelId || "",
                 scheme: config.scheme || "https"
             };
         }
@@ -49,30 +47,63 @@ export class HomeAssistantAuthWebpageEditor extends LitElement {
         this.requestUpdate();
     }
 
-    handleGenericUrlChange(event) {
-        this.genericUrl = event.target.value;
-    }
-
     handleGrafanaConfigChange(field, event) {
         this.grafanaConfig = { ...this.grafanaConfig, [field]: event.target.value };
     }
 
-    saveConfig() {
-        const config = { type: this.selectedType };
-
-        if (this.selectedType === "generic") {
-            config.url = this.genericUrl;
-        } else if (this.selectedType === "grafana") {
-            config.domain = this.grafanaConfig.domain;
-            config.id = this.grafanaConfig.id;
-            config.name = this.grafanaConfig.name;
-            config.orgId = this.grafanaConfig.orgId;
-            config.panelId = this.grafanaConfig.panelId;
-            config.scheme = this.grafanaConfig.scheme;
+    async loadGrafanaFolders() {
+        const { scheme, domain } = this.grafanaConfig;
+        try {
+            const response = await fetch(`${scheme}://${domain}/api/folders`, {
+                headers: { 'Content-Type': 'application/json' }
+            });
+            if (response.ok) {
+                this.grafanaFolders = await response.json();
+            } else {
+                console.error("Failed to load folders from Grafana.");
+            }
+        } catch (error) {
+            console.error("Error loading folders from Grafana:", error);
         }
+    }
 
+    async loadDashboards(folder) {
+        const { scheme, domain } = this.grafanaConfig;
+        try {
+            const response = await fetch(`${scheme}://${domain}/api/search?folderIds=${folder.id}`, {
+                headers: { 'Content-Type': 'application/json' }
+            });
+            if (response.ok) {
+                this.grafanaDashboards = await response.json();
+            } else {
+                console.error("Failed to load dashboards from Grafana.");
+            }
+        } catch (error) {
+            console.error("Error loading dashboards from Grafana:", error);
+        }
+    }
+
+    async loadPanels(dashboard) {
+        const { scheme, domain } = this.grafanaConfig;
+        try {
+            const response = await fetch(`${scheme}://${domain}/api/dashboards/uid/${dashboard.uid}`, {
+                headers: { 'Content-Type': 'application/json' }
+            });
+            if (response.ok) {
+                const data = await response.json();
+                this.grafanaPanels = data.dashboard.panels;
+            } else {
+                console.error("Failed to load panels from Grafana.");
+            }
+        } catch (error) {
+            console.error("Error loading panels from Grafana:", error);
+        }
+    }
+
+    selectPanel(panel) {
+        this.config.url = `${this.grafanaConfig.scheme}://${this.grafanaConfig.domain}/d/${panel.id}`;
         this.dispatchEvent(new CustomEvent("config-changed", {
-            detail: { config },
+            detail: { config: this.config },
             bubbles: true,
             composed: true
         }));
@@ -87,56 +118,33 @@ export class HomeAssistantAuthWebpageEditor extends LitElement {
                     <mwc-list-item value="grafana">Grafana</mwc-list-item>
                 </ha-select>
 
-                ${this.selectedType === "generic"
+                ${this.selectedType === "grafana"
                 ? html`
                           <div>
-                              <label for="generic-url">URL:</label>
-                              <ha-textfield
-                                  id="generic-url"
-                                  .value="${this.genericUrl}"
-                                  @input="${this.handleGenericUrlChange}"
-                              ></ha-textfield>
-                          </div>
-                      `
-                : html`
-                          <div>
-                              <label for="domain">Domain:</label>
-                              <ha-textfield
-                                  id="domain"
-                                  .value="${this.grafanaConfig.domain}"
-                                  @input="${(e) => this.handleGrafanaConfigChange("domain", e)}"
-                              ></ha-textfield>
-                              <label for="id">ID:</label>
-                              <ha-textfield
-                                  id="id"
-                                  .value="${this.grafanaConfig.id}"
-                                  @input="${(e) => this.handleGrafanaConfigChange("id", e)}"
-                              ></ha-textfield>
-                              <label for="name">Name:</label>
-                              <ha-textfield
-                                  id="name"
-                                  .value="${this.grafanaConfig.name}"
-                                  @input="${(e) => this.handleGrafanaConfigChange("name", e)}"
-                              ></ha-textfield>
-                              <label for="orgId">Org ID:</label>
-                              <ha-textfield
-                                  id="orgId"
-                                  .value="${this.grafanaConfig.orgId}"
-                                  @input="${(e) => this.handleGrafanaConfigChange("orgId", e)}"
-                              ></ha-textfield>
-                              <label for="panelId">Panel ID:</label>
-                              <ha-textfield
-                                  id="panelId"
-                                  .value="${this.grafanaConfig.panelId}"
-                                  @input="${(e) => this.handleGrafanaConfigChange("panelId", e)}"
-                              ></ha-textfield>
-                              <label for="scheme">Scheme:</label>
-                              <ha-select id="scheme" @change="${(e) => this.handleGrafanaConfigChange("scheme", e)}" .value="${this.grafanaConfig.scheme}">
+                              <ha-select @change="${(e) => this.handleGrafanaConfigChange('scheme', e)}" .value="${this.grafanaConfig.scheme}">
                                   <mwc-list-item value="https">https</mwc-list-item>
                                   <mwc-list-item value="http">http</mwc-list-item>
                               </ha-select>
+                              <ha-textfield
+                                  label="Grafana Domain"
+                                  .value="${this.grafanaConfig.domain}"
+                                  @input="${(e) => this.handleGrafanaConfigChange('domain', e)}"
+                              ></ha-textfield>
+                              <mwc-button @click="${this.loadGrafanaFolders}" raised>Load</mwc-button>
                           </div>
-                      `}
+                          <div>
+                              <label for="folders">Folders:</label>
+                              <ha-select id="folders" @change="${(e) => this.loadDashboards(this.grafanaFolders[e.target.selectedIndex])}">
+                                  ${this.grafanaFolders.map(folder => html`<mwc-list-item .value="${folder}">${folder.title}</mwc-list-item>`)}</ha-select>
+                              <label for="dashboards">Dashboards:</label>
+                              <ha-select id="dashboards" @change="${(e) => this.loadPanels(this.grafanaDashboards[e.target.selectedIndex])}">
+                                  ${this.grafanaDashboards.map(dashboard => html`<mwc-list-item .value="${dashboard}">${dashboard.title}</mwc-list-item>`)}</ha-select>
+                              <label for="panels">Panels:</label>
+                              <ha-select id="panels" @change="${(e) => this.selectPanel(this.grafanaPanels[e.target.selectedIndex])}">
+                                  ${this.grafanaPanels.map(panel => html`<mwc-list-item .value="${panel}">${panel.title}</mwc-list-item>`)}</ha-select>
+                          </div>
+                      `
+                : html``}
 
                 <mwc-button @click="${this.saveConfig}" raised>Save</mwc-button>
             </div>
