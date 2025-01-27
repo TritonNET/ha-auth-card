@@ -8,7 +8,8 @@ class HomeAssistantAuthWebpageCard extends LitElement {
             hass: undefined,
             config: undefined,
             url: undefined,
-            error: undefined
+            error: undefined,
+            styles: undefined
         };
     }
 
@@ -18,74 +19,19 @@ class HomeAssistantAuthWebpageCard extends LitElement {
 
         this.url = "";
         this.error = undefined;
+        this.styles = undefined;
     }
 
     async setConfig(config) {
         this.config = config;
+        this.url = this.config.url;
+        this.styles = this.config.styles;
 
-        if (this.config.config != undefined) {
-            const type = this.config.config.type;
-            switch (type) {
-                case "generic":
-                    this.url = this.config.config.url;
-                    break;
-                case "grafana":
-                    this.url = this.getGrafanaUrl(this.config.config);                    
-                    break;
-            }
-        }
-
-        if (this.url != undefined)
-            await this.setIframeCookieAsync();
+        await this.setIframeCookieAsync();
     }
 
-    getGrafanaUrl(config) {
-        const domain = config.domain;
-        if (domain === undefined)
-        {
-            this.error = "No 'domain' found in config";
-            return undefined;
-        }
-
-        const ID = config.id || config.ID || config.Id;
-        if (ID === undefined)
-        {
-            this.error = "No 'id' found in config";
-            return undefined;
-        }
-        
-        const name = config.name;
-        if (name === undefined)
-        {
-            this.error = "No 'name' found in config";
-            return undefined;
-        }
-
-        const orgID = config.orgId || config.orgID;
-        if (orgID === undefined)
-        {
-            this.error = "No 'orgId' found in config";
-            return undefined;
-        }
-
-        const panelID = config.panelId || config.panelID;
-        if (panelID === undefined)
-        {
-            this.error = "No 'panelID' found in config";
-            return undefined;
-        }
-        
-        const scheme = config.scheme || "https";
-
-        this.error = undefined;
-
-        return `${scheme}://${domain}/d-solo/${ID}/${name}?orgId=${orgID}&panelId=${panelID}`;
-    }
-
-    async setIframeCookieAsync()
-    {
-        try
-        {
+    async setIframeCookieAsync() {
+        try {
             this.error = undefined;
 
             const _hassCon = await hassConnection;
@@ -110,20 +56,18 @@ class HomeAssistantAuthWebpageCard extends LitElement {
             //console.log(`Cookie set with expiration at ${expiresAt}`);
 
             // Schedule the cookie refresh based on the expires_in value
-            setTimeout(() =>
-            {
+            setTimeout(() => {
                 //console.log("Refreshing cookie...");
                 this.setIframeCookieAsync().catch((error) => {
                     console.error("Error refreshing the cookie:", error);
                 }); // Re-read the latest token from localStorage
             }, expiresInMs - 500); // Refresh 500ms before it expires for safety
         }
-        catch (error)
-        {
+        catch (error) {
             this.error = "Error setting iframe cookie:" + error;
         }
     }
-    
+
     render() {
         if (this.error != undefined) {
             return html`
@@ -137,13 +81,19 @@ class HomeAssistantAuthWebpageCard extends LitElement {
     }
 
     static get styles() {
-        return css`
-          .chart-frame {
-            border: none; 
-            margin: 0; 
-            padding: 0;
-          }      
-        `;
+        if (this.styles == undefined) {
+            return css`
+              .chart-frame {
+                border: none; 
+                margin: 0; 
+                padding: 0;
+                width: 100%;
+                height: 100%;
+              }      
+            `;
+        }
+
+        return css`${this.styles}`;
     }
 }
 
