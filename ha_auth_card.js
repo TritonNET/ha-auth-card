@@ -1,7 +1,7 @@
 // Download latest from https://cdn.jsdelivr.net/gh/lit/dist@3.1.4/core/lit-core.min.js
 import { LitElement, html, css } from "https://cdn.jsdelivr.net/gh/lit/dist@3.1.4/core/lit-core.min.js";
 
-class HomeAssistantAuthWebpageCard extends LitElement {
+class HomeAssistantAuthCard extends LitElement {
 
     static get properties() {
         return {
@@ -97,4 +97,4 @@ class HomeAssistantAuthWebpageCard extends LitElement {
     }
 }
 
-customElements.define('ha-auth-webpage', HomeAssistantAuthWebpageCard);
+customElements.define('ha-auth-card', HomeAssistantAuthCard);
