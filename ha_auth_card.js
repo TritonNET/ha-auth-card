@@ -9,7 +9,7 @@ class HomeAssistantAuthWebpageCard extends LitElement {
             config: undefined,
             url: undefined,
             error: undefined,
-            styles: undefined
+            css: undefined
         };
     }
 
@@ -19,13 +19,13 @@ class HomeAssistantAuthWebpageCard extends LitElement {
 
         this.url = "";
         this.error = undefined;
-        this.styles = undefined;
+        this.css = undefined;
     }
 
     async setConfig(config) {
         this.config = config;
         this.url = this.config.url;
-        this.styles = this.config.styles;
+        this.css = this.config.css;
 
         await this.setIframeCookieAsync();
     }
@@ -81,7 +81,7 @@ class HomeAssistantAuthWebpageCard extends LitElement {
     }
 
     static get styles() {
-        if (this.styles == undefined) {
+        if (this.css == undefined) {
             return css`
               .chart-frame {
                 border: none; 
@@ -93,7 +93,7 @@ class HomeAssistantAuthWebpageCard extends LitElement {
             `;
         }
 
-        return css`${this.styles}`;
+        return css`${this.css}`;
     }
 }
 
