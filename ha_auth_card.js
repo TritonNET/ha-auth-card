@@ -76,13 +76,12 @@ class HomeAssistantAuthCard extends LitElement {
         }
 
         return html`
-              <iframe class="chart-frame" src="${this.url}"></iframe>
+              <iframe class="chart-frame" src="${this.url}" style="${this.css}"></iframe>
             `;
     }
 
     static get styles() {
-        if (this.css == undefined) {
-            return css`
+        return css`
               .chart-frame {
                 border: none; 
                 margin: 0; 
@@ -91,9 +90,6 @@ class HomeAssistantAuthCard extends LitElement {
                 height: 100%;
               }      
             `;
-        }
-
-        return css`${this.css}`;
     }
 }
 
